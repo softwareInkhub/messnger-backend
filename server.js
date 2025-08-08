@@ -1,0 +1,106 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+
+// Import configurations and middleware
+const { PORT, NODE_ENV } = require('./config/constants');
+const { setupSecurity } = require('./middleware/security');
+const errorHandler = require('./middleware/errorHandler');
+const Logger = require('./utils/logger');
+
+// Import routes
+const messageRoutes = require('./routes/messageRoutes');
+const authRoutes = require('./routes/authRoutes');
+
+// Initialize Express app
+const app = express();
+
+// Security middleware
+setupSecurity(app);
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// CORS middleware
+app.use(cors());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  Logger.info(`${req.method} ${req.path}`, {
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  next();
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'WhatsApp Backend is running',
+    timestamp: new Date().toISOString(),
+    environment: NODE_ENV
+  });
+});
+
+// Test endpoint
+app.post('/test', (req, res) => {
+  res.json({
+    message: 'Backend is working!',
+    timestamp: new Date().toISOString(),
+    body: req.body
+  });
+});
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api', messageRoutes);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Route ${req.originalUrl} not found`,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Global error handler (must be last)
+app.use(errorHandler);
+
+// Start server
+const server = app.listen(PORT, () => {
+  Logger.info(`🚀 WhatsApp Backend running on http://localhost:${PORT}`);
+  Logger.info(`📝 Environment: ${NODE_ENV}`);
+  Logger.info(`🌍 CORS enabled for frontend integration`);
+  Logger.info(`📝 Available endpoints:`);
+  Logger.info(`   POST /api/auth/signup - Validate registration data`);
+  Logger.info(`   POST /api/auth/verifyOTP - Verify OTP and create user`);
+  Logger.info(`   POST /api/auth/login - User login`);
+  Logger.info(`   POST /api/sendMessage - Send a message`);
+  Logger.info(`   GET  /api/getMessages - Get messages`);
+  Logger.info(`   GET  /api/messages/sender/:senderId - Get messages by sender`);
+  Logger.info(`   GET  /api/messages/receiver/:receiverId - Get messages by receiver`);
+  Logger.info(`   GET  /health - Health check`);
+  Logger.info(`   POST /test - Test endpoint`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  Logger.info('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    Logger.info('Process terminated');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  Logger.info('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    Logger.info('Process terminated');
+    process.exit(0);
+  });
+});
+
+module.exports = app;
