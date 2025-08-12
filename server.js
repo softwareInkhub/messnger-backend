@@ -44,6 +44,40 @@ app.get('/health', (req, res) => {
   });
 });
 
+// DynamoDB test endpoint
+app.get('/test-dynamodb', async (req, res) => {
+  try {
+    const { SEND_MESSAGES_TABLE } = require('./config/constants');
+    const { docClient } = require('./config/database');
+    const { ScanCommand } = require('@aws-sdk/lib-dynamodb');
+    
+    console.log('🧪 Testing DynamoDB connection...');
+    console.log('📋 Table name:', SEND_MESSAGES_TABLE);
+    
+    const params = {
+      TableName: SEND_MESSAGES_TABLE,
+      Limit: 5
+    };
+    
+    const result = await docClient.send(new ScanCommand(params));
+    
+    res.json({
+      success: true,
+      tableName: SEND_MESSAGES_TABLE,
+      itemsFound: result.Items?.length || 0,
+      sampleItem: result.Items?.[0],
+      fullResult: result
+    });
+  } catch (error) {
+    console.error('❌ DynamoDB test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      tableName: require('./config/constants').SEND_MESSAGES_TABLE
+    });
+  }
+});
+
 // Test endpoint
 app.post('/test', (req, res) => {
   res.json({

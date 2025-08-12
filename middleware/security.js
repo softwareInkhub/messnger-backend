@@ -38,8 +38,8 @@ const setupSecurity = (app) => {
   // Basic security headers
   app.use(helmet());
   
-  // Rate limiting
-  app.use(rateLimiter);
+  // Rate limiting - temporarily disabled for testing
+  // app.use(rateLimiter);
   
   // CORS
   app.use((req, res, next) => {

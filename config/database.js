@@ -8,8 +8,18 @@ const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
 // Validate required environment variables
 if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
+  console.error('❌ AWS credentials missing:', { 
+    hasAccessKey: !!AWS_ACCESS_KEY_ID, 
+    hasSecretKey: !!AWS_SECRET_ACCESS_KEY 
+  });
   throw new Error('AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be set in environment variables');
 }
+
+console.log('✅ AWS credentials loaded:', { 
+  region: AWS_REGION,
+  hasAccessKey: !!AWS_ACCESS_KEY_ID, 
+  hasSecretKey: !!AWS_SECRET_ACCESS_KEY 
+});
 
 // Initialize DynamoDB client with environment variables
 const dynamoClient = new DynamoDBClient({
