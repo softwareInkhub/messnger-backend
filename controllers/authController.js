@@ -11,6 +11,11 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ error: 'Phone number, username, and password are required' });
     }
 
+    // Check if Firebase is available
+    if (!auth) {
+      return res.status(503).json({ error: 'Authentication service temporarily unavailable' });
+    }
+
     // Format phone number
     let formattedPhone = phoneNumber;
     if (phoneNumber.length === 10 && !phoneNumber.startsWith('+')) {
@@ -65,6 +70,11 @@ exports.loginUser = async (req, res) => {
   try {
     if (!phoneNumber || !password) {
       return res.status(400).json({ error: 'Phone number and password are required' });
+    }
+
+    // Check if Firebase is available
+    if (!auth || !db) {
+      return res.status(503).json({ error: 'Authentication service temporarily unavailable' });
     }
 
     // Format phone number
@@ -132,6 +142,11 @@ exports.verifyOTP = async (req, res) => {
   const db = getFirestore();
 
   try {
+    // Check if Firebase is available
+    if (!auth || !db) {
+      return res.status(503).json({ error: 'Authentication service temporarily unavailable' });
+    }
+
     // Get the ID token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
