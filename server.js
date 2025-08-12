@@ -27,8 +27,10 @@ app.use(cors({
   origin: [
     'https://messenger-frontend-n4ht.vercel.app', // Replace with your actual Vercel domain
     'http://localhost:3000',
-    'http://localhost:3001', // Common Vercel pattern
-    'https://*.vercel.app' // Allow all Vercel subdomains
+    'http://localhost:3001',
+    'http://messenger-frontend-n4ht.vercel.app'                          
+ // Common Vercel patter
+     // Allow all Vercel subdomains
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
