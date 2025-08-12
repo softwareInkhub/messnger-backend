@@ -24,15 +24,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // CORS middleware - Allow requests from Vercel and local development
 app.use(cors({
-  origin: [
-    'https://messenger-frontend-n4ht.vercel.app', // Your Vercel frontend domain
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://*.vercel.app' // Allow all Vercel subdomains
-  ],
+  origin: true, // Allow all origins for now to debug
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 
 // Request logging middleware
@@ -50,7 +45,23 @@ app.get('/health', (req, res) => {
     status: 'OK',
     message: 'WhatsApp Backend is running',
     timestamp: new Date().toISOString(),
-    environment: NODE_ENV
+    environment: NODE_ENV,
+    cors: 'enabled',
+    endpoints: {
+      sendMessage: '/api/sendMessage',
+      getMessages: '/api/getMessages',
+      health: '/health'
+    }
+  });
+});
+
+// API health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'API is working',
+    timestamp: new Date().toISOString(),
+    cors: 'enabled'
   });
 });
 

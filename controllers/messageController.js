@@ -5,25 +5,32 @@ class MessageController {
   // Send a new message
   static async sendMessage(req, res) {
     try {
-      console.log('📨 Send message request:', req.body);
+      console.log('📨 Send message request received');
+      console.log('📨 Request body:', JSON.stringify(req.body, null, 2));
+      console.log('📨 Request headers:', req.headers);
 
       // Validate input
       const validation = validateMessageInput(req.body);
       if (!validation.isValid) {
+        console.error('❌ Validation failed:', validation.errors);
         return res.status(400).json({
           error: 'Validation failed',
           details: validation.errors
         });
       }
 
+      console.log('✅ Validation passed, creating message...');
+
       // Create message instance
       const message = new Message(req.body);
       message.validate();
 
+      console.log('✅ Message validated, saving to database...');
+
       // Save message to database
       const savedMessage = await message.save();
 
-      console.log('✅ Message sent successfully:', savedMessage.id);
+      console.log('✅ Message saved successfully:', savedMessage.id);
 
       return res.status(200).json({
         message: 'Message sent successfully',
@@ -32,6 +39,7 @@ class MessageController {
 
     } catch (error) {
       console.error('❌ Send message error:', error);
+      console.error('❌ Error stack:', error.stack);
       
       return res.status(500).json({
         error: 'Failed to send message',
