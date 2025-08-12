@@ -25,16 +25,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // CORS middleware - Allow requests from Vercel and local development
 app.use(cors({
   origin: [
-    'https://messenger-frontend-n4ht.vercel.app', // Replace with your actual Vercel domain
+    'https://messenger-frontend-n4ht.vercel.app', // Your Vercel frontend domain
     'http://localhost:3000',
     'http://localhost:3001',
-    'http://messenger-frontend-n4ht.vercel.app'                          
- // Common Vercel patter
-     // Allow all Vercel subdomains
+    'https://*.vercel.app' // Allow all Vercel subdomains
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 // Request logging middleware
